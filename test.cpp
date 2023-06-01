@@ -21,7 +21,8 @@ data diagram
       14    1                                                     14             1/4/2023       name1 familyname4     1          100.04 
       15    1                                                     15             1/5/2023       name1 familyname5     1          100.05    100.05
  
-
+      //note:  sa fdisplay, included ung marker any value para malaman kung anung result ng testing
+      //saka nalng tatangalin ito pag complete na ung test
 
       sa initial value na input ko computation (100,000 - 1000 ) (limit na data para sa add for testing purpose) 
       -1 (less 1 para makuha last index dahil staring tyo ng 0)
@@ -33,16 +34,13 @@ data diagram
         98999     99009
 
       project update
-      nalagyan ko na ng addnew, edit, remove, find, display( may index range ito start at last(may sobrang 1)  )
-
-      may pag babago sa flinear_search hindi kasi makasagad ung mid sa right
-
-      still under observation, hindi ko tinangal muna ung debug print, para madali din ninyo pansin
-      ung pag run ng code.
-
+      konting testing pa pag ok na, ung columing naman ang aausin ko
       saka ko nlang muna gawing ung print out column ni sir aj tan, tapusin ko muna ung CRUD ng database
-      pag tapus nito, aausin ko na ung print out ng column
+      pag tapus nito, aausin ko na ung print out ng column.
 */
+
+
+        
 
 #include<iostream>
 #include<fstream>
@@ -101,12 +99,111 @@ void finitial( );
 bool fget_string(std::string& output);
 bool fget_integer(int& output);
 bool fget_floating_point(double& output);
-void fdisplay_range( int start_par, int stop_par );
+int fdisplay_range( int start_par, int stop_par );
 int flinear_search( int target ) ;
 int fremove( int target );   //L80 
 void fedit(  ); //L90
 void fget_string( ); //L100
 
+
+void fadd(  ) {//2
+
+        user_struct user_sub;
+
+        std::string str_;
+
+        std::cout << "\n\nAdd new mode:  ";
+                 
+        std::cout << "\ninput date:  ";
+        while ( fget_integer( user_sub.date  )  ) { //4
+                std::cout << "\n\nwrong input of integer.\n";
+        } //4
+
+        std::string sub_str="";
+        std::cout << "\ninput product name:  ";
+        while (  fget_string( str_ )  || str_.size()  >= 100 ) { //4
+                std::cout << "\n\nerror invalid input.\n";
+        } //4
+       
+        strcpy(user_sub.product_name, str_.c_str(  ) );
+
+        std::cout << "\ninput pcs:  ";
+        while ( fget_integer( user_sub.pcs  )  ) { //4
+                std::cout << "\n\nwrong input of integer.\n";
+        } //4
+
+        std::cout << "\ninput amount:  ";
+        while (  fget_floating_point( user_sub.amount  )  ) { //4
+                std::cout << "\n\nwrong input of integer.\n";
+        } //4
+
+
+        while(  1 ){//7
+
+                std::cout << "\nU want to save the added data:  ";
+                while (  fget_string( str_ )  ) { //4
+                        std::cout << "\n\nwrong input of string.\n";
+                } //4
+
+                if( str_ == "Y" || str_ == "y"  ) {//5
+                        break;
+                }if( str_ == "N" || str_ == "n"  ) {//5
+
+                        std::cout << "\n\nYou have canceled the added data... ";
+                        fget_string(  );
+
+                        return;
+                }else {//5
+                        std::cout << "\n\nMust input Y or N  ";
+                        fget_string(  );
+                }//5
+
+        }//7
+
+        //computation of total
+        guser[ gindex_user_password.length ] = user_sub;
+
+        guser[ gindex_user_password.length ].total = guser[ gindex_user_password.length ].amount  * 
+        guser[ gindex_user_password.length ].pcs; 
+
+        //updating the new id
+        gindex_user_password.last_id +=1;
+
+        guser[ gindex_user_password.length ].id = gindex_user_password.last_id; 
+        gindex_user[ gindex_user_password.length ].id = gindex_user_password.last_id;
+
+        gindex_user[ gindex_user_password.length ].marker = 1;
+
+        guser[ gindex_user_password.length ].id = gindex_user_password.last_id +1;
+
+        //updating the new length
+        gindex_user_password.length +=1;
+
+        gindex_user_write.open( ADDRESS_INDEX_USER, std::ios::binary );
+
+        guser_write.open( ADDRESS_USER, std::ios::binary );
+
+        //intial
+        gindex_user_write.write( (char*) &gindex_user_password, sizeof( index_user_password_struct ) );
+
+        //intial
+        guser_write.write( (char*) &gindex_user_password, sizeof( index_user_password_struct ) );
+
+        gindex_user_write.write( (char*) &gindex_user, sizeof( index_user_struct ) * gindex_user_password.length );
+
+        guser_write.write( (char*) guser, sizeof( user_struct ) * gindex_user_password.length  );
+
+        gindex_user_write.close();
+
+        guser_write.close();
+
+        std::cout << "\n\ndata sucessfully been saved  ";
+        fget_string( );
+            
+        
+}//2
+
+//overloading fget_string, use of pausing on screen
 void fget_string( ) { //2
       //L40 
 
@@ -137,7 +234,9 @@ void fedit(  ) {//2
             return;
       }//3 
 
-      
+      //to avoid loss of column data salin ng buo
+      user_sub = guser[_return];  
+
       std::cout << "\n\ninput new date:  ";
       while(  fget_integer(id_inp  )  ) {//3
             std::cout << "\n\nwrong input of integer ";
@@ -162,9 +261,8 @@ void fedit(  ) {//2
       while(  fget_floating_point(inp_double  ) ) {//3
             std::cout << "\n\nwrong input of integer ";
       }//3
-
+      
       user_sub.amount = inp_double;
-
       user_sub.total = user_sub.amount * user_sub.pcs;
 
       while( 1 ) {//5
@@ -210,33 +308,59 @@ void fedit(  ) {//2
 //param target the id to be deleted
 //returns -1 if fail, otherwise 0 to up sucessfull
 int fremove( int target ){//2
-      //L80 
-            
-      int index = flinear_search( target );
+        //L80 
+        std::string str_;    
+        int index = flinear_search( target );
 
-      if( index == -1 ){//3
-          
-            return -1;
-      }//3
+        if( index == -1 ){//3
+                //did not find it
+                return -1;
+        }//3
 
-      //put the flag to delete
-      gindex_user[index ].marker = 0;
+        while(  1 ){//7
 
-      gindex_user_write.open( ADDRESS_INDEX_USER, std::ios::binary );
-      gindex_user_write.write( (char*) &gindex_user_password, sizeof( index_user_password_struct ) );
-      gindex_user_write.write( (char*) gindex_user, sizeof( index_user_struct ) * gindex_user_password.length );
-      gindex_user_write.close();
+                std::cout << "\nAre u sure u want to delete Y or N:  ";
+                while (  fget_string( str_ )  ) { //4
+                        std::cout << "\n\nwrong input of string.\n";
+                } //4
 
-      return index;
+                if( str_ == "Y" || str_ == "y"  ) {//5
+                        break;
+                }if( str_ == "N" || str_ == "n"  ) {//5
+
+                        std::cout << "\n\nYou have canceled to delete... ";
+                        fget_string(  );
+
+                        return -2;
+                }else {//5
+                        std::cout << "\n\nMust input Y or N  ";
+                        fget_string(  );
+                }//5
+
+        }//7
+        //put the flag to delete
+        gindex_user[index ].marker = 0;
+
+        gindex_user_write.open( ADDRESS_INDEX_USER, std::ios::binary );
+        gindex_user_write.write( (char*) &gindex_user_password, sizeof( index_user_password_struct ) );
+        gindex_user_write.write( (char*) gindex_user, sizeof( index_user_struct ) * gindex_user_password.length );
+        gindex_user_write.close();
+
+        return index;
 }//2
 
-
+//note:  included ung marker any value para malaman kung anung result ng testing
+//saka nalng tatangalin ito pag complete na ung test
 //param start_par ex: 0 ang 0 ang first value,  stop_par ex: 10 ang 9 ang last value
-void fdisplay_range( int start_par, int stop_par ) { //2
+int fdisplay_range( int start_par, int stop_par ) { //2
       //L30
       //reopening it
 
       //std::cout << "\ndebug L31 start_par " << start_par << " , stop_par " << stop_par << "\n";
+
+      if( stop_par >= gindex_user_password.length ) {//10
+            return -1;
+      }//10
 
       int fir =start_par;
 
@@ -247,7 +371,7 @@ void fdisplay_range( int start_par, int stop_par ) { //2
       << std::setw(10) << std::right << "pcs"  << std::setw(10) << std::right << "amount" 
       << std::setw(10) << std::right << "total" << "\n";      
             
-      while( fir < stop_par ){//4
+      while( fir <= stop_par ){//4
             
             std::cout << std::setw(10) << std::right << fir << std::setw(10) << std::right << gindex_user[fir].id  << std::setw(7) << std::right << gindex_user[fir].marker 
             << std::setw(10) << std::right << guser[fir].date  << std::setw(20) << std::right << guser[fir].product_name 
@@ -258,7 +382,7 @@ void fdisplay_range( int start_par, int stop_par ) { //2
             fir+=1;
       }//4
 
-
+      return 0;
 }//2
 
 void finitial(  ) {//2
@@ -371,49 +495,54 @@ bool fget_floating_point(double& output) {
 
 //return -1 if fails, otherwise 0 to up value sucess
 int flinear_search( int target ) {//2
-      //L70 
+        //L70 
 
-      std::cout << "\ndebug L71 target " << target <<"\n";
+        std::cout << "\ndebug L71 target " << target <<"\n";
 
-      int left= 0, right = (RANGE_ARRAY-1000) -1, mid;
+        int left= 0, right = gindex_user_password.length-1 , mid;
 
-      mid = (left + right) / 2;
-      
-      while( left < right ) {//3
+        mid = (left + right) / 2;
 
-            std::cout << "\ndebug L72 target " << target << ", guser[mid].id " << guser[mid].id <<
-            ", left " << left << ", mid " << mid << ", right " << right << "\n";
-           
-            // < id dadasog pa-baba
-            if( target < guser[mid].id ) { //4
-                  //( left    m )   right
-                  right = mid;
-                  mid = (left +  mid) /2;
-            
-            // > id then dadasog pataas
-            } else if( target > guser[mid].id ) { //4
-                  // left    (m    right )
-                  
-                  left = mid;
+        while( left < right ) {//3
 
-                  if( mid + right % 2 != 0) {//5
+                std::cout << "\ndebug L72 target " << target << ", guser[mid].id " << guser[mid].id <<
+                ", left " << left << ", mid " << mid << ", right " << right << "\n";
+
+                // < id dadasog pa-baba
+                if( target < guser[mid].id ) { //4
+                        //( left    m )   right
+                        right = mid;
+                        mid = (left +  mid) /2;
+
+                // > id then dadasog pataas
+                } else if( target > guser[mid].id ) { //4
+                        // left    (m    right )
+
+                        left = mid;
+
+                        if( mid + right % 2 != 0) {//5
                         mid = ( (mid + right) /2) +1;
-      
-                  }else {//5
+
+                        }else {//5
 
                         mid = (mid + right) /2;
-                  }//5
+                        }//5
 
-            //it is equal return 
-            } else { //4
-                  
-                  return mid;
-            }//4
+                //it is equal return 
+                } else { //4
 
-      }//3
+                        if( gindex_user[mid].marker == 0  ) {//10
+                                //it is marked as deleted
+                                break;
+                        }//10
 
-      //cannot return 0 because it is the first index, then if fail return -1
-      return -1;
+                        return mid;
+                }//4
+
+        }//3
+
+        //cannot return 0 because it is the first index, then if fail return -1
+        return -1;
 }//2
 
 
@@ -427,7 +556,7 @@ int main(void  ) {//2
 
       while(1) {//3
       
-            std::cout << "\n\nMain menu:\ntotal index " << gindex_user_password.length -1 <<  "\nf to find id, d to display selected range, r remove data, a addnew, e edit data\nq to leave:  ";
+            std::cout << "\n\nMain menu:\ntotal index 0 to " << gindex_user_password.length -1 <<  "\nf to find id, d to display selected range, r remove data, a addnew, e edit data\nq to leave:  ";
             while (  fget_string(ch)  || ch.size()  >= 100 ) { //4
                   std::cout << "\n\nerror invalid input.\n";
             } //4
@@ -439,7 +568,7 @@ int main(void  ) {//2
 
                   int start_int, length_int;
                   
-                  std::cout << "\n\nDisplay mode:\ninput starting index:  ";
+                  std::cout << "\n\nDisplay mode:\nstart in 0 end at actual number \nex: 1 to 10 is 0 to 9\ninput starting index:  ";
                   while (  fget_integer(start_int)  ) { //4
                         std::cout << "\n\nwrong input of integer.\n";
                   } //4
@@ -449,7 +578,13 @@ int main(void  ) {//2
                         std::cout << "\n\nwrong input of integer.\n";
                   } //4
                   
-                  fdisplay_range( start_int, length_int );
+                  int return_ = fdisplay_range( start_int, length_int );
+        
+                  if( return_ ==-1) {//10
+                        std::cout << "\n\nover range of length input must not over " << gindex_user_password.length-1 << " ... ";
+                        fget_string(  );
+                        continue;
+                  }//10
 
             } else if( ch == "f" || ch == "F" ) { //5
                   //find mode
@@ -489,7 +624,7 @@ int main(void  ) {//2
                   
                   int id_inp;
 
-                  std::cout << "\n\nRemove data mode:\ninput id to remove";              
+                  std::cout << "\n\nRemove data mode:\ninput id to remove:  ";              
                   
                   while ( fget_integer(id_inp)  ) { //4
                         std::cout << "\n\nwrong input of integer.\n";
@@ -501,6 +636,9 @@ int main(void  ) {//2
                         std::cout << "\n\ndid not found target " << id_inp << "\n";
                         fget_string(  );
                         continue;
+                  } else if(_return == -2 ){//7
+                        //canceled the deleted command
+                        continue;                
                   }//7
                        
                   std::cout << "\n\nsucess input " << _return << " deleted \n" ;
@@ -519,70 +657,7 @@ int main(void  ) {//2
             
             } else if( ch == "A" || ch == "a" ) { //5
                   //Addnew
-                  
-                  std::cout << "\n\nAdd new mode:  ";
-                 
-                  std::cout << "\ninput date:  ";
-                  while ( fget_integer( guser[ gindex_user_password.length ].date  )  ) { //4
-                        std::cout << "\n\nwrong input of integer.\n";
-                  } //4
-
-                  std::string sub_str="";
-                  std::cout << "\ninput product name:  ";
-                  while (  fget_string( sub_str  )  || ch.size()  >= 100 ) { //4
-                        std::cout << "\n\nerror invalid input.\n";
-                  } //4
-
-                  strcpy( guser[ gindex_user_password.length ].product_name, sub_str.c_str( ) ) ;
-
-
-                  std::cout << "\ninput pcs:  ";
-                  while ( fget_integer( guser[ gindex_user_password.length ].pcs  )  ) { //4
-                        std::cout << "\n\nwrong input of integer.\n";
-                  } //4
-
-                  std::cout << "\ninput amount:  ";
-                  while (  fget_floating_point( guser[ gindex_user_password.length ].amount  )  ) { //4
-                        std::cout << "\n\nwrong input of integer.\n";
-                  } //4
-
-                  //computation of total
-                  guser[ gindex_user_password.length ].total = guser[ gindex_user_password.length ].amount  * 
-                  guser[ gindex_user_password.length ].pcs; 
-
-                  gindex_user_password.last_id +=1;
-
-                  guser[ gindex_user_password.length ].id = gindex_user_password.last_id; 
-                  gindex_user[ gindex_user_password.length ].id = gindex_user_password.last_id;
-                 
-                  gindex_user[ gindex_user_password.length ].marker = 1;
-
-                  guser[ gindex_user_password.length ].id = gindex_user_password.last_id +1;
-       
-                  gindex_user_password.length +=1;
-
-
-                  gindex_user_write.open( ADDRESS_INDEX_USER, std::ios::binary );
-
-                  guser_write.open( ADDRESS_USER, std::ios::binary );
-
-                    //intial
-                  gindex_user_write.write( (char*) &gindex_user_password, sizeof( index_user_password_struct ) );
-
-                  //intial
-                  guser_write.write( (char*) &gindex_user_password, sizeof( index_user_password_struct ) );
-
-                  gindex_user_write.write( (char*) &gindex_user, sizeof( index_user_struct ) * gindex_user_password.length );
-
-                  guser_write.write( (char*) guser, sizeof( user_struct ) * gindex_user_password.length  );
-
-                  gindex_user_write.close();
-
-                  guser_write.close();
-
-                  std::cout << "\n\ndata sucessfully been saved  ";
-                  fget_string( );
-            
+                        fadd( ); 
             //edit mode
             } else if( ch == "E" || ch == "e" ) { //5
                   
