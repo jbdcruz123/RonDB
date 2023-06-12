@@ -151,7 +151,7 @@ void rondb::initial(  ) {//2
  
         user_read.open( ADDRESS_USER, std::ios::binary );
 
-        if( !(!index_user_read)  and  !(!index_user_read) ){//20
+        if( !(!index_user_read)  and  !(!user_read) ){//20
 
                 //leave the initial function if 2 file exists
                 index_user_read.read( (char*) &rondb::index_user_password, sizeof(index_user_password_struct ) ) ;                           
