@@ -145,7 +145,7 @@ namespace rondb {//2
 //implementation
 
 void rondb::initial(  ) {//2
-        //l20
+        //L20
          
         index_user_read.open( ADDRESS_INDEX_USER, std::ios::binary );
  
@@ -155,13 +155,21 @@ void rondb::initial(  ) {//2
 
                 //leave the initial function if 2 file exists
                 index_user_read.read( (char*) &rondb::index_user_password, sizeof(index_user_password_struct ) ) ;                           
+                user_read.read( (char*) &rondb::index_user_password, sizeof(index_user_password_struct ) ) ;                           
                 
                 if( rondb::index_user_password.password != 1234 ){ //21
 
+                        index_user_read.close(  );
+                        user_read.close(  );
                         std::cout << "\n\nwrong format ng file\ngagawa tayo ulit ng bago";
                         get_string( );
+                        
+                        std::exit(  0); 
                 }else {//21
 
+                        index_user_read.read( (char*) rondb::index_user, sizeof(index_user_struct ) * RANGE_ARRAY) ;                           
+                        user_read.read( (char*) rondb::user, sizeof(user_struct ) * RANGE_ARRAY) ;                           
+                
                         //sucessful now begin to the main menu
                         index_user_read.close(  );
                         user_read.close(  );
@@ -862,7 +870,6 @@ int main(void  ) {//2
         std::cout << "\n\nexiting \n";
         return 0;
 }//2
-
 
 
 
